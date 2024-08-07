@@ -1,0 +1,9 @@
+1. Telescope browse file extension UI should be improved, and when using it with the config option on Alpha, it should change the cwd accordingly
+2. Add code running shortcuts
+3. Handle git support (statusline, statuscolumn)
+4. Ensure statuscolumn loads properly when lazy installs a plugin
+5. DAP support
+6. Sessions/project support
+7. Create my own autopair with tabout plugin
+8. Add treesitter utils to make certain actions easier
+9. Improve multiline surround functionality
