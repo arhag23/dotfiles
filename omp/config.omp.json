@@ -1,0 +1,114 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "final_space": true,
+  "version": 3,
+  "palette": {
+	"crust": "#181926",
+    "base": "#24273a",
+    "surface": "#363a4f",
+    "text_accent": "#b7bdf8",
+	"text": "#cad3f5",
+	"subtext": "#b8c0e0",
+    "red": "#ed8796",
+    "green": "#a6da95",
+    "yellow": "#eed49f",
+	"blue": "#8aadf4",
+	"white": "#e6e9ef",
+	"bright-white": "#ffffff",
+	"right-text": "#8087a2",
+	"os-bg": "#ee99a0",
+    "git-clean": "#a6cfa1",
+    "git-modified": "p:red",
+    "git-ahead": "p:yellow"
+  },
+  "blocks": [
+    {
+      "segments": [
+        {
+          "type": "executiontime",
+          "style": "plain",
+          "foreground": "p:right-text",
+          "template": "{{ .FormattedMs }} \uE0B3 ",
+          "properties": {
+            "threshold": 500,
+            "style": "round"
+          }
+        },
+        {
+          "foreground": "p:right-text",
+          "template": " <b>{{ .CurrentDate | date .Format }}</b> ",
+          "properties": {
+            "time_format": "Jan 02 3:04:05 PM"
+          },
+          "style": "plain",
+          "type": "time"
+        }
+      ],
+      "type": "rprompt"
+    },
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "background": "p:os-bg",
+          "foreground": "p:surface",
+          "style": "diamond",
+          "leading_diamond": "\uE0B6",
+          "template": " {{ .Icon }}  ",
+          "trailing_diamond": "\uE0B0",
+          "type": "os"
+        },
+        {
+          "background": "p:surface",
+          "foreground": "p:white",
+          "style": "powerline",
+          "powerline_symbol": "\uE0B0",
+          "properties": {
+            "style": "powerlevel",
+			"right_format": "<b><p:bright-white>%s</></b>",
+            "max_width": 20
+          },
+          "type": "path"
+        },
+        {
+          "background": "p:git-clean",
+          "background_templates": [
+            "{{ if or (.Working.Changed) (.Staging.Changed) }}p:git-modified{{ end }}",
+            "{{ if or (gt .Ahead 0) (gt .Behind 0) }}p:git-ahead{{ end }}"
+          ],
+          "foreground": "p:base",
+          "style": "powerline",
+          "powerline_symbol": "\uE0B0",
+          "template": " {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }} ",
+          "properties": {
+            "branch_max_length": 25,
+            "fetch_status": true,
+            "branch_icon": "\uE0A0 ",
+            "commit_icon": "\uF417  ",
+            "tag_icon": "\uF412  ",
+            "cherry_pick_icon": "\uE29B  ",
+            "revert_icon": "\uF0E2  ",
+            "merge_icon": "\uE727  ",
+            "no_commits_icon": "\uDB80\uDC95  "
+          },
+          "type": "git"
+        },
+        {
+          "background": "p:blue",
+		  "background_templates": ["{{ if .Error }}p:white{{ end }}"],
+          "foreground": "p:crust",
+          "foreground_templates": ["{{ if .Error }}p:red{{ end }}"],
+          "style": "diamond",
+          "leading_diamond": "<transparent>\uE0B0</>",
+          "template": "{{ if .Error }} \uF12A{{ else }} \uF00C {{end}}",
+          "trailing_diamond": "\uE0B4",
+          "properties": {
+            "always_enabled": true
+          },
+          "type": "status"
+        }
+      ]
+    }
+  ]
+}
