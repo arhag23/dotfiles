@@ -1,43 +1,4 @@
-local M = {}
-
-M.lsp_configs = {
-	lua_ls = {
-		settings = {
-			Lua = {
-				runtime = {
-					version = "LuaJIT",
-					path = vim.split(package.path, ";"),
-				},
-				diagnostics = {
-					globals = { "vim" },
-				},
-				workspace = {
-					library = {
-						[vim.fn.expand("$VIMRUNTIME/lua")] = true,
-						[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-					},
-				},
-			},
-		},
-	},
-	rust_analyzer = {},
-	typst_lsp = {},
-	basedpyright = {
-		settings = {
-			basedpyright = {
-				analysis = {
-					typeCheckingMode = "standard",
-				},
-			},
-		},
-	},
-	html = {
-		filetypes = { "html", "htmldjango", "jinja" },
-	},
-	cssls = {},
-}
-
-M.keymaps = {
+return {
 	{
 		mode = "n",
 		key = "gd",
@@ -125,60 +86,10 @@ M.keymaps = {
 		opts = { desc = "Rename" },
 		has = "rename",
 	},
+	{
+		mode = "n",
+		key = "<leader>d",
+		command = vim.diagnostic.open_float,
+		opts = { desc = "Show diagnostic under cursor" },
+	},
 }
-
-M.kind_icons = {
-	Folder = " ",
-	File = " ",
-	Module = " ",
-	Package = " ",
-	Namespace = "󰅩 ",
-	Interface = " ",
-	Struct = " ",
-	Class = " ",
-	Method = "󰆧 ",
-	Property = " ",
-	Field = " ",
-	Constructor = " ",
-	Enum = " ",
-	EnumMember = " ",
-	Function = "󰊕 ",
-	Variable = " ",
-	Constant = "󰏿 ",
-	Text = "󰉿 ",
-	String = "󰉿 ",
-	Value = "󰎠 ",
-	Number = "󰎠 ",
-	Boolean = "◩ ",
-	Array = "󰅪 ",
-	Object = "󰅩 ",
-	Keyword = "󰌋 ",
-	Key = "󰌋 ",
-	Null = "󰟢 ",
-	Unit = " ",
-	Color = "󰏘 ",
-	Reference = " ",
-	TypeParameter = " ",
-	Operator = " ",
-	Event = " ",
-	Snippet = " ",
-}
-
-M.hasCapability = function(buffer, method)
-	method = method:find("/") and method or "textDocument/" .. method
-	local clients = vim.lsp.get_clients({ bufnr = buffer })
-	for _, client in ipairs(clients) do
-		if client.supports_method(method) then
-			return true
-		end
-	end
-	return false
-end
-
-M.defaultAttach = function(client, bufnr)
-	if client.server_capabilities.documentSymbolProvider then
-		require("nvim-navic").attach(client, bufnr)
-	end
-end
-
-return M

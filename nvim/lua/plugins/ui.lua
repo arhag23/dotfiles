@@ -1,234 +1,18 @@
 -- Plugins that improve the UI or add important UI elements
 
 --    Plugins:
---      -> mini.animate                 [animations]
---      -> mini.indentscope             [indentline]
---      -> indent-blankline.nvim        [indentlines]
---      -> highlight-undo.nvim          [undo highlight]
---      -> nvim-web-devicons            [devicons]
---      -> noice.nvim                   [cmdline UI]
---      -> which-key.nvim               [keymap help]
---      -> trouble.nvim                 [LSP fix list]
---      -> telescope.nvim               [Search UI]
---      -> telescope-fzf-native.nvim    [Search backend]
---      -> nvim-navic                   [Winbar Breadcrumbs]
---      -> heirline.nvim                [Statusline]
---      -> alpha-nvim                   [Greeter]
---
---    Colorschemes:
---      -> catppuccin
+--      -> which-key.nvim        [keymap help]
+--      -> mini.icons            [centralized icons]
+--      -> telescope.nvim        [Search UI]
+--      -> indent-blankline      [Indent guides]
+--      -> noice.nvim            [CMDLine UI]
+--      -> heirline.nvim         [Statusline]
+--      -> nvim-navic            [Winbar breadcrumbs]
+--      -> incline.nvim          [Floating Winbar]
+--      -> nvim-notify           [Pretty notifications]
+--      -> snacks.nvim           [Dashboard and terminal]
 
 return {
-	-- mini.animate [https://github.com/echasnovski/mini.animate]
-	-- Animations for cursor movement, smooth scrolling, and window open/close/resize
-	{
-		"echasnovski/mini.animate",
-		version = false,
-		event = "VeryLazy",
-		opts = function()
-			local mouse_scrolled = false
-			for _, scroll in ipairs({ "Up", "Down" }) do
-				local key = "<ScrollWheel" .. scroll .. ">"
-				vim.keymap.set({ "", "i" }, key, function()
-					mouse_scrolled = true
-					return key
-				end, { expr = true })
-			end
-
-			return {
-				scroll = {
-					timing = require("mini.animate").gen_timing.linear({ duration = 150, unit = "total" }),
-
-					subscroll = require("mini.animate").gen_subscroll.equal({
-						predicate = function(total_scroll)
-							if mouse_scrolled then
-								mouse_scrolled = false
-								return false
-							end
-							return total_scroll > 1
-						end,
-					}),
-
-					cursor = {
-						enable = false,
-						timing = require("mini.animate").gen_timing.linear({ duration = 50, unit = "total" }),
-					},
-				},
-			}
-		end,
-	},
-
-	-- mini.indentscope [https://github.com/echasnovski/mini.indentscope]
-	-- Animated indentline for current cursor position
-	{
-		"echasnovski/mini.indentscope",
-		version = false,
-		event = "LazyFile",
-		opts = function()
-			return {
-				draw = {
-					animation = require("mini.indentscope").gen_animation.quadratic({
-						easing = "in-out",
-						duration = 40,
-						unit = "step",
-					}),
-				},
-				options = {
-					try_as_border = true,
-				},
-				--symbol = "⎢",
-			}
-		end,
-		init = function()
-			vim.api.nvim_create_autocmd("filetype", {
-				pattern = {
-					"help",
-					"nvim-tree",
-					"trouble",
-					"lazy",
-					"mason",
-					"notify",
-					"toggleterm",
-					"alpha",
-				},
-				callback = function()
-					vim.b.miniindentscope_disable = true
-				end,
-			})
-		end,
-	},
-
-	-- indent-blankline.nvim [https://github.com/lukas-reineke/indent-blankline.nvim]
-	-- Indentscope lines
-	{
-		"lukas-reineke/indent-blankline.nvim",
-		main = "ibl",
-		event = "LazyFile",
-		config = true,
-		cond = false,
-	},
-
-	-- highlight-undo.nvim [https://github.com/tzachar/highlight-undo.nvim]
-	-- Briefly highlights undo/redo changes
-	{
-		"tzachar/highlight-undo.nvim",
-		event = "LazyFile",
-		opts = {
-			duration = 1500,
-			hlgroup = "Search",
-			keymaps = {
-				{ "n", "u", "undo", {} },
-				{ "n", "<C-r>", "redo", {} },
-			},
-			undo = {},
-			redo = {},
-		},
-		config = function(_, opts)
-			opts.undo.hlgroup = opts.hlgroup
-			opts.redo.hlgroup = opts.hlgroup
-			require("highlight-undo").setup(opts)
-
-			vim.api.nvim_create_autocmd("TextYankPost", {
-				desc = "Highlight yanked text",
-				pattern = "*",
-				callback = function()
-					vim.highlight.on_yank({ higroup = opts.hlgroup, timeout = opts.duration })
-				end,
-			})
-		end,
-	},
-
-	-- nvim-web-devicons [https://github.com/nvim-tree/nvim-web-devicons]
-	-- Utility to fetch icons based on filetype or special name
-	{
-		"nvim-tree/nvim-web-devicons",
-		event = "VeryLazy",
-		opts = {
-			override = {
-				default_icon = { icon = "" },
-				txt = { icon = "" },
-			},
-		},
-	},
-
-	-- noice.nvim [https://github.com/folke/noice.nvim]
-	-- Floating window cmdline UI, LSP progress, better LSP markdown formatting
-	{
-		"folke/noice.nvim",
-		event = "VeryLazy",
-		opts = {
-			lsp = {
-				override = {
-					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-					["vim.lsp.util.stylize_markdown"] = true,
-					["cmp.entry.get_documentation"] = true,
-				},
-			},
-			signature = {
-				enabled = false,
-			},
-			presets = {
-				bottom_search = true,
-				long_message_to_split = true,
-			},
-			views = {
-				cmdline_popup = {
-					border = {
-						style = {
-							top_left = "",
-							top = " ",
-							top_right = "",
-							left = "",
-							right = "",
-							bottom_left = "",
-							bottom = "",
-							bottom_right = "",
-						},
-						padding = { 1, 3, 2, 3 },
-					},
-					win_options = {
-						winhighlight = {
-							FloatBorder = "FloatBorder",
-							Normal = "NormalFloat",
-							FloatTitle = "CmdlinePopupTitle",
-						},
-					},
-				},
-				popup = {
-					border = {
-						style = "none",
-						padding = { 1, 2, 1, 2 },
-					},
-				},
-			},
-			cmdline = {
-				enabled = true,
-				view = "cmdline_popup",
-				format = {
-					cmdline = { icon = " " },
-					lua = { icon = " " },
-					Telescope = { pattern = "^:%s*Telescope%s+", icon = " " },
-					highlight = { pattern = "^:%s*highlight%s+", icon = " " },
-				},
-			},
-			popupmenu = {
-				backend = "cmp",
-			},
-		},
-		config = function(_, opts)
-			require("ui.highlights").set_highlight("CmdlinePopupTitle", {
-				fg = require("ui.highlights").colors.dark_bg,
-				bg = require("ui.highlights").colors.orange,
-				bold = true,
-			})
-			require("noice").setup(opts)
-		end,
-		dependencies = {
-			"MunifTanjim/nui.nvim",
-			"rcarriga/nvim-notify",
-		},
-	},
-
 	-- which-key.nvim [https://github.com/folke/which-key.nvim]
 	-- Menu to display potential next keymaps
 	{
@@ -237,26 +21,22 @@ return {
 		opts = {
 			icons = {
 				breadcrumb = "»",
-				separator = " ",
-				group = "+",
+				separator = "➜",
+				-- separator = "  ",
+				group = " +",
 			},
 		},
 	},
 
-	-- trouble.nvim [https://github.com/folke/trouble.nvim]
-	-- A nice UI to show LSP diagnostics and their location
+	-- mini.icons [https://github.com/echasnovski/mini.icons]
+	-- Utility to fetch icons for filetypes, lsp, etc
 	{
-		"folke/trouble.nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
-		cmd = { "TroubleToggle", "Trouble" },
+		"echasnovski/mini.icons",
+		version = false,
+		lazy = "VeryLazy",
 		opts = {
-			mode = "document_diagnostics",
-			signs = {
-				error = " ",
-				warning = " ",
-				hint = " ",
-				information = " ",
-				other = " ",
+			default = {
+				file = { glyph = "" },
 			},
 		},
 	},
@@ -298,62 +78,111 @@ return {
 				desc = "Telescope fuzzy find current buffer",
 			},
 		},
-		opts = function()
-			local actions = require("telescope.actions")
-			return {
-				defaults = {
-					prompt_prefix = "   ",
-					mappings = {
-						i = {
-							["<esc>"] = actions.close,
-							["<Tab>"] = actions.move_selection_worse,
-							["<S-Tab>"] = actions.move_selection_better,
-							["<C-j>"] = actions.preview_scrolling_down,
-							["<C-k>"] = actions.preview_scrolling_up,
-							["<C-x>"] = actions.select_vertical,
-						},
-					},
-				},
-				extensions = {
-					fzf = {
-						fuzzy = true,
-						override_generic_sorter = true,
-						override_file_sorter = true,
-						case_mode = "smart_case",
-					},
-					file_browser = {
-						--theme = "ivy",
-						hijack_netrw = true,
-					},
-				},
-			}
-		end,
-		config = function(_, opts)
-			local hl = require("ui.highlights")
-			hl.set_highlight("TelescopePromptPrefix", { fg = hl.colors.red })
-			require("telescope").setup(opts)
-			require("telescope").load_extension("fzf")
-			require("telescope").load_extension("notify")
-			require("telescope").load_extension("neoclip")
-			require("telescope").load_extension("file_browser")
+		config = function()
+			require("plugins.configs.telescope")
 		end,
 	},
 
-	-- nvim-navic [https://github.com/SmiteshP/nvim-navic]
-	-- Provides beadcrumbs for winbar from the lsp
+	-- indent-blankline.nvim [https://github.com/lukas-reineke/indent-blankline.nvim]
+	-- Indentation guides for scope
 	{
-		"SmiteshP/nvim-navic",
+		"lukas-reineke/indent-blankline.nvim",
+		dependencies = { "nvim-treesitter" },
+		main = "ibl",
+		event = "LazyFile",
+		opts = {
+			indent = { char = "▏" },
+			scope = {
+				show_start = false,
+				show_end = false,
+				include = {
+					node_type = {
+						lua = { "table_constructor" },
+					},
+				},
+			},
+		},
+	},
+
+	-- noice.nvim [https://github.com/folke/noice.nvim]
+	-- Floating window cmdline UI, LSP progress, better LSP markdown formatting
+	{
+		"folke/noice.nvim",
 		event = "VeryLazy",
-		config = function()
-			require("ui.highlights").set_highlight("NavicText", { fg = require("ui.highlights").colors.linenr })
-			local withSpace = {}
-			for name, icon in pairs(require("core.util.lsp").kind_icons) do
-				withSpace[name] = icon .. " "
-			end
-			require("nvim-navic").setup({
-				icons = withSpace,
-				separator = "  ",
-			})
+		enabled = false,
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			"rcarriga/nvim-notify",
+		},
+		opts = {
+			lsp = {
+				override = {
+					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+					["vim.lsp.util.stylize_markdown"] = true,
+					["cmp.entry.get_documentation"] = false,
+				},
+			},
+			signature = {
+				enabled = false,
+			},
+			presets = {
+				-- bottom_search = true,
+				long_message_to_split = true,
+				-- command_palette = true,
+			},
+			views = {
+				cmdline_popup = {
+					border = {
+						style = {
+							top_left = "",
+							top = " ",
+							top_right = "",
+							left = "",
+							right = "",
+							bottom_left = "",
+							bottom = "",
+							bottom_right = "",
+						},
+						padding = { 1, 3, 2, 3 },
+					},
+					win_options = {
+						winhighlight = {
+							FloatBorder = "FloatBorder",
+							Normal = "NormalFloat",
+							FloatTitle = "CmdlinePopupTitle",
+						},
+					},
+				},
+				popup = {
+					border = {
+						style = "none",
+						padding = { 1, 2, 1, 2 },
+					},
+				},
+			},
+			cmdline = {
+				enabled = true,
+				view = "cmdline",
+				format = {
+					cmdline = { icon = " " },
+					lua = { icon = " " },
+					Telescope = { pattern = "^:%s*Telescope%s+", icon = " " },
+					highlight = { pattern = "^:%s*highlight%s+", icon = " " },
+				},
+			},
+			popupmenu = {
+				backend = "cmp",
+			},
+		},
+		config = function(_, opts)
+			-- require("utils.ui.highlights").set_highlight("CmdlinePopupTitle", {
+			-- 	fg = require("utils.ui.highlights").colors.dark_bg,
+			-- 	bg = require("utils.ui.highlights").colors.orange,
+			-- 	bold = true,
+			-- })
+			-- vim.g.ui_cmdline_pos = {vim.o.lines / 2 + 1, vim.o.columns / 2 - 24}
+			require("noice").setup(opts)
+			vim.o.cmdheight = 1
 		end,
 	},
 
@@ -364,10 +193,10 @@ return {
 		event = "UIEnter",
 		config = function()
 			require("heirline").setup({
-				statusline = require("ui.status.line"),
-				winbar = require("ui.status.winbar"),
-				statuscolumn = require("ui.status.column"),
-				tabline = require("ui.status.tabline"),
+				statusline = require("plugins.configs.heirline").statusline,
+				statuscolumn = require("plugins.configs.heirline").statuscolumn,
+				-- winbar = require("plugins.configs.heirline").winbar,
+				tabline = require("plugins.configs.heirline").tabline,
 				opts = {
 					disable_winbar_cb = function(args)
 						return require("heirline.conditions").buffer_matches({
@@ -375,7 +204,7 @@ return {
 							filetype = { "^git.*", "Trouble" },
 						}, args.buf)
 					end,
-					colors = require("ui.highlights").colors,
+					colors = require("utils.ui.highlights").colors,
 				},
 			})
 			vim.api.nvim_create_augroup("Heirline", { clear = true })
@@ -388,162 +217,136 @@ return {
 		end,
 	},
 
-	-- alpha.nvim [https://github.com/goolord/alpha-nvim]
-	-- Greeter and welcome screen
+	-- nvim-navic [https://github.com/SmiteshP/nvim-navic]
+	-- Provides breadcrumbs for winbar from the lsp
 	{
-		"goolord/alpha-nvim",
-		event = "VimEnter",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-			--"nvim-telescope/telescope.nvim",
-			--"nvim-lua/plenary.nvim",
-			--"nvim-telescope/telescope-file-browser.nvim",
-		},
-		opts = function()
-			local header = {
-				type = "text",
-				val = {
-					[[                                                                       ]],
-					[[                                                                     ]],
-					[[       ████ ██████           █████      ██                     ]],
-					[[      ███████████             █████                             ]],
-					[[      █████████ ███████████████████ ███   ███████████   ]],
-					[[     █████████  ███    █████████████ █████ ██████████████   ]],
-					[[    █████████ ██████████ █████████ █████ █████ ████ █████   ]],
-					[[  ███████████ ███    ███ █████████ █████ █████ ████ █████  ]],
-					[[ ██████  █████████████████████ ████ █████ █████ ████ ██████ ]],
-					[[                                                                       ]],
-				},
-				opts = {
-					position = "center",
-					hl = "AlphaHeader",
-				},
-			}
-
-			local function button(desc, action, key)
-				local opts = {
-					position = "center",
-					shortcut = key,
-					align_shortcut = "right",
-					cursor = 3,
-					width = 50,
-					keymap = { "n", key, action, { noremap = true, silent = true, nowait = true } },
-					hl = "AlphaButtons",
-					hl_shortcut = "AlphaShortcut",
-				}
-
-				return {
-					type = "button",
-					val = desc,
-					on_press = function()
-						vim.api.nvim_feedkeys(key, "t", false)
-					end,
-					opts = opts,
-				}
+		"SmiteshP/nvim-navic",
+		event = "VeryLazy",
+		config = function()
+			require("utils.ui.highlights").set_highlight(
+				"NavicText",
+				{ fg = require("utils.ui.highlights").colors.text }
+			)
+			local withSpace = {}
+			for _, name in ipairs(require("mini.icons").list("lsp")) do
+				withSpace[name] = require("mini.icons").get("lsp", name)
+				-- withSpace[name] = icon .. " "
 			end
-
-			return {
-				layout = {
-					{ type = "padding", val = 4 },
-					header,
-					{ type = "padding", val = 3 },
-					{
-						type = "text",
-						val = function()
-							return os.date("  %A %b %d    %I:%M %p")
-						end,
-						opts = {
-							hl = "AlphaHeaderLabel",
-							position = "center",
-						},
-					},
-					{ type = "padding", val = 2 },
-					{
-						type = "group",
-						val = {
-							button("   New File", "<Cmd>e<CR>", "n"),
-							button("   Find Files", "<Cmd>Telescope find_files<CR>", "f"),
-							button("   Update Plugins", "<Cmd> Lazy sync", "u"),
-							button(
-								"󰒓   Open Config",
-								[[<Cmd>lua require("telescope").extensions.file_browser.file_browser({ path = vim.fn.stdpath("config") })<CR>]],
-								"c"
-							),
-							button("   Quit", "<Cmd>q<CR>", "q"),
-						},
-						opts = {
-							spacing = 1,
-						},
-					},
-					{ type = "padding", val = 2 },
-					{
-						type = "group",
-						val = {
-							{
-								type = "text",
-								val = "󰋚  Recent Files",
-								opts = {
-									position = "center",
-									width = 50,
-									hl = "AlphaHeaderLabel",
-								},
-							},
-							{
-								type = "group",
-								val = function()
-									return { require("alpha.themes.theta").mru(0, vim.fn.getcwd(), 5) }
-								end,
-							},
-						},
-					},
-					{ type = "padding", val = 8 },
-					{
-						type = "text",
-						val = function()
-							local stats = require("lazy").stats()
-							return "  Loaded "
-								.. stats.count
-								.. " plugins in "
-								.. string.format("%2.1f", stats.startuptime)
-								.. " ms"
-						end,
-						opts = {
-							position = "center",
-							hl = "AlphaFooter",
-						},
-					},
-				},
-				opts = {},
-			}
+			require("nvim-navic").setup({
+				icons = withSpace,
+				separator = "  ",
+			})
 		end,
 	},
 
-	-- catppuccin [https://github.com/catppuccin/nvim]
+	-- incline.nvim [https://github.com/b0o/incline.nvim]
+	-- Floating winbar config
 	{
-		"catppuccin/nvim",
-		name = "catppuccin",
-		lazy = false,
-		priority = 1000,
+		"b0o/incline.nvim",
+		event = "UIEnter",
 		config = function()
-			require("catppuccin").setup({
-				flavour = "macchiato",
-				no_italic = true,
-				integrations = {
-					mason = true,
-					semantic_tokens = true,
-					lsp_trouble = true,
-					telescope = {
-						enabled = true,
-						style = "nvchad",
-					},
-					navic = {
-						enabled = true,
-						custom_bg = "NONE",
-					},
-					notify = true,
+			local helpers = require("incline.helpers")
+			local navic = require("nvim-navic")
+			require("incline").setup({
+				window = {
+					padding = 0,
+					margin = { horizontal = 0, vertical = 0 },
 				},
+				render = function(props)
+					local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
+					if filename == "" then
+						filename = " [No Name] "
+					end
+					local hl_to_hex = function(hl)
+						return "#" .. string.format("%x", hl)
+					end
+					local ft_icon, ft_hl = require("mini.icons").get("file", filename)
+					local ft_color = hl_to_hex(require("utils.ui.highlights").get_highlight(ft_hl).fg)
+					local res = {
+						ft_icon and { " ", ft_icon, "  ", guibg = ft_color, guifg = helpers.contrast_color(ft_color) }
+							or "",
+						" ",
+						{ filename, gui = "bold" },
+						guibg = hl_to_hex(require("utils.ui.highlights").colors.lighter_bg),
+						-- guibg = hl_to_hex(require("utils.ui.highlights").get_highlight("Pmenu").bg),
+					}
+					if props.focused then
+						for _, item in ipairs(navic.get_data(props.buf) or {}) do
+							table.insert(res, {
+								{ "  ", group = "NavicSeparator" },
+								{ item.icon, group = "NavicIcons" .. item.type },
+								{ item.name, group = "NavicText" },
+							})
+						end
+					end
+					table.insert(res, " ")
+					table.insert(res, { " ", guibg = hl_to_hex(require("utils.ui.highlights").colors.normal_bg) })
+					return res
+				end,
 			})
-			vim.cmd([[colorscheme catppuccin]])
 		end,
+	},
+
+	-- nvim-notify [https://github.com/rcarriga/nvim-notify]
+	-- Beautiful notifications with animations
+	{
+		"rcarriga/nvim-notify",
+		event = "UIEnter",
+	},
+
+	-- snacks.nvim [https://github.com/folke/snacks.nvim]
+	-- Dashboard configuration and editor terminal
+	{
+		"folke/snacks.nvim",
+		event = "VimEnter",
+		keys = {
+			{
+				"<Leader>t",
+				function()
+					require("snacks.terminal").toggle()
+				end,
+				desc = "Toggles terminal",
+			},
+			{
+				"<Leader>to",
+				function()
+					require("snacks.terminal").open(nil, { create = true })
+				end,
+				desc = "Opens new terminal",
+			},
+		},
+		opts = {
+			dashboard = {
+				enabled = true,
+				preset = {
+					header = [[
+                                                                   
+      ████ ██████           █████      ██                    
+     ███████████             █████                            
+     █████████ ███████████████████ ███   ███████████  
+    █████████  ███    █████████████ █████ ██████████████  
+   █████████ ██████████ █████████ █████ █████ ████ █████  
+ ███████████ ███    ███ █████████ █████ █████ ████ █████ 
+██████  █████████████████████ ████ █████ █████ ████ ██████]],
+				},
+				sections = {
+					{ section = "header" },
+					{ section = "keys", gap = 1, padding = 1 },
+					{ section = "startup" },
+				},
+			},
+			terminal = { enabled = true },
+			bigfile = { enabled = false },
+			explorer = { enabled = false },
+			indent = { enabled = false },
+			input = { enabled = false },
+			notifier = { enabled = false },
+			picker = { enabled = false },
+			quickfile = { enabled = false },
+			scope = { enabled = false },
+			scroll = { enabled = false },
+			statuscolumn = { enabled = false },
+			words = { enabled = false },
+		},
 	},
 }

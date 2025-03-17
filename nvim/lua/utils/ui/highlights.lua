@@ -1,7 +1,5 @@
 local M = {}
 
---M.colors = require("catppuccin.palettes").get_palette("macchiato")
-
 -- sets highlight without overwriting everything, similar to how :highlight works
 M.set_highlight = function(hlGroup, hl)
 	local cur = vim.api.nvim_get_hl(0, { name = hlGroup })

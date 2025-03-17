@@ -22,6 +22,8 @@ local vim_opts = {
 	smoothscroll = true, -- scrolls smoothly
 	clipboard = "unnamedplus", -- uses system clipboard
 
+	-- inccommand = "split", -- shows result preview in separate window
+
 	timeout = true, -- timeout for whichkey
 	timeoutlen = 300, -- timeoutlen for which key
 	pumheight = 8, -- maximum elements in popupmenu
@@ -32,7 +34,8 @@ local vim_opts = {
 	smartcase = true, -- cares about caps for first letter
 
 	laststatus = 3, -- one statusline
-	showtabline = 2, -- tabline
+	cmdheight = 0, -- hide command line if not being used
+	-- showtabline = 2, -- tabline
 
 	splitright = true, -- opens splits to the right
 
@@ -51,33 +54,18 @@ local vim_opts = {
 	},
 }
 
---[[
-local diagSigns = { Error = " ", Warn = " ", Hint = " ", Info = " " }
-for type, icon in pairs(diagSigns) do
-	local name = "DiagnosticSign" .. type
-	vim.fn.sign_define(name, { text = icon, texthl = name })
-end
---]]
-
+local diagIcons = require("utils.ui.icons").diag
 vim.diagnostic.config({
 	signs = {
 		text = {
-			[vim.diagnostic.severity.ERROR] = " ",
-			[vim.diagnostic.severity.WARN] = " ",
-			[vim.diagnostic.severity.HINT] = " ",
-			[vim.diagnostic.severity.INFO] = " ",
+			[vim.diagnostic.severity.ERROR] = diagIcons.error,
+			[vim.diagnostic.severity.WARN] = diagIcons.warn,
+			[vim.diagnostic.severity.HINT] = diagIcons.hint,
+			[vim.diagnostic.severity.INFO] = diagIcons.info,
 		},
 	},
 })
 
-for i, j in pairs(vim_opts) do
-	vim.opt[i] = j
+for name, setting in pairs(vim_opts) do
+	vim.opt[name] = setting
 end
-
-vim.filetype.add({
-	extension = {
-		jinja = "jinja",
-		jinja2 = "jinja",
-		j2 = "jinja",
-	},
-})
