@@ -101,7 +101,7 @@
           "foreground_templates": ["{{ if .Error }}p:red{{ end }}"],
           "style": "diamond",
           "leading_diamond": "<transparent>\uE0B0</>",
-          "template": "{{ if .Error }} \uF12A{{ else }} \uF00C {{end}}",
+          "template": "{{ if .Error }} \uF12A {{ else }} \uF00C {{end}}",
           "trailing_diamond": "\uE0B4",
           "properties": {
             "always_enabled": true
